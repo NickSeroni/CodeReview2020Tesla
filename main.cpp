@@ -16,5 +16,23 @@ int main()
 {
     cout<<"In-class Code Review"<<endl;
 
+	char number[] = "123.456";
+	int c, n, d;
+
+	// If the conversion from C string to integers can take place
+	if (characteristic(number, c) && mantissa(number, n, d))
+	{
+		// do math with c, n, d
+	}
+	else
+	{
+		// handle error on input
+	}
+
     return 0;
+}
+
+bool characteristic(char numString[], int& c)
+{
+
 }
