@@ -9,7 +9,11 @@ bool mantissa(char numString[], int& numerator, int& denominator);
 bool isDigit(char ch);
 bool isNumValid(char numString[]);
 bool hasCharacteristic(char numString[]); // checks if any characteristic entered ex: -.123
-bool isNegative(char numString[]);
+bool isNegative(char numString[]); // negative nums with no characteristic must be handled by mantissa
+bool findIn(char numString[], char c);
+
+int findFirstIndexOf(char numString[], char c);
+int pow(int base, int power);
 int getCStringSize(char* string);
 
 // Math functions
@@ -23,27 +27,22 @@ int main()
     cout<<"In-class Code Review"<<endl;
 
 	char number[] = "123.456";
-	char n2[10] = { '-', '1', '2', '3' };
 	int c, n, d;
 
 	// If the conversion from C string to integers can take place
 	if (characteristic(number, c))// && mantissa(number, n, d))
 	{
-		// do math with c, n, d
+		//calculate c, n, d	
 	}
 	else
 	{
 		// handle error on input
 	}
 
-	characteristic(n2, c);
-
     return 0;
 }
 
 // Stores the characteristic from param numString[] in param c
-// Add digits together multiplied by powers of 10
-// ex: 1, 2, 3 -> 1x100 + 2x10 + 3 -> 123
 bool characteristic(char numString[], int& c)
 {
 	bool isValid = isNumValid(numString);
@@ -63,13 +62,31 @@ bool characteristic(char numString[], int& c)
 		{
 			startingIndex = 1;
 		}
-		
-		// Loop ends either at decimal or at the end of the string
-		for (int i = startingIndex; numString[i] != '.' || i < strSize; i++)
-		{
 
+		int decimalIndex = strSize; // if there is no decimal, then default to the end of the string
+		if (findIn(numString, '.') == true)
+		{
+			decimalIndex = findFirstIndexOf(numString, '.');
 		}
 		
+		// Add digits together multiplied by powers of 10
+		// ex: 1, 2, 3 -> 1x100 + 2x10 + 3 -> 123.
+		int sum = 0;
+		for (int i = startingIndex; i < decimalIndex; i++)
+		{
+			// subtracting 48 to convert from ASCII to int (ASCII 0 starts at 48)
+			sum += (numString[i] - 48) * pow(10, decimalIndex - i - 1);
+		}
+
+		// set c to negative
+		if (isNegative(numString) == true)
+		{
+			c = sum * -1;
+		}
+		else
+		{
+			c = sum;
+		}
 	}
 
 	return isValid;
@@ -142,14 +159,10 @@ bool hasCharacteristic(char numString[])
 	// then the characteristic must exist
 	for (int i = 0; numString[0] != '.' || i < size; i++)
 	{
-		if (numString[0] == '+' || isNegative(numString))
-		{
-			continue;
-		}
-
 		if (isDigit(numString[i]))
 		{
 			exists = true;
+			break;
 		}
 	}
 
@@ -168,12 +181,68 @@ bool isNegative(char numString[])
 	return isNeg;
 }
 
-int getCStringSize(char* string)
+bool findIn(char numString[], char c)
 {
-	char* copy; // copy of the original string
+	bool exists = false;
+	int size = getCStringSize(numString);
 
-	for (copy = string; *copy != '\0'; copy++); // continue the pointer until we reach the null terminator
+	for (int i = 0; i < size; i++)
+	{
+		if (numString[i] == c)
+		{
+			exists = true;
+			break;
+		}
+	}
+
+	return exists;
+}
+
+int findFirstIndexOf(char numString[], char c)
+{
+	int result = -1;
+	int size = getCStringSize(numString);
+
+	for (int i = 0; i < size; i++)
+	{
+		if (numString[i] == c)
+		{
+			result = i;
+			break;
+		}
+	}
+
+	return result;
+}
+
+int pow(int base, int power)
+{
+	int result = base;
+
+	if (power <= 0)
+	{
+		result = 1;
+	}
+	else
+	{
+		for (int i = 1; i < power; i++)
+		{
+			result *= base;
+		}
+	}
+
+	return result;
+}
+
+int getCStringSize(char numString[])
+{
+	char* copy = nullptr; // copy of the original string
+
+	for (copy = numString; *copy != '\0'; copy++)// continue the pointer until we reach the null terminator
+	{
+		continue;
+	}
 
 	// our return value of the size, the difference between the start and final pointer
-	return int(copy - string); 
+	return int(copy - numString); 
 }
